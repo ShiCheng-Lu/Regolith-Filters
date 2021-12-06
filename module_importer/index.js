@@ -3,7 +3,7 @@ const fs = require("fs");
 const fse = require("fs-extra");
 
 const defSettings = {
-    package_path: "",
+    package_path: ".",
     native_modules: [
         "mojang-minecraft",
         "mojang-gametest",
@@ -37,12 +37,12 @@ glob("BP/scripts/**/*.js", { ignore: ["BP/scripts/modules/**/*", "BP/scripts/ser
 
 console.log(`package path: |${settings.package_path}|`);
 
-const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}package.json`).toString());
+const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package.json`).toString());
 
 // add dependencies to output dir
 for (const module in package.dependencies) {
     // cp node_modules/[module_name]/[exports] -> [target]/[exports]
-    const module_path = `../../${settings.package_path}node_modules/${module}`
+    const module_path = `../../${settings.package_path}/node_modules/${module}`
 
     const config = JSON.parse(fs.readFileSync(`${module_path}/minecraft-module.config.json`).toString());
     for (const key in config.exports) {
