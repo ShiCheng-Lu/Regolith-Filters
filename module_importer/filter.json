@@ -3,7 +3,7 @@
     {
       "runWith": "nodejs",
       "script": "./index.js",
-      "name": "majestik:json_formatter"
+      "name": "shich:module_importer"
     }
   ]
 }

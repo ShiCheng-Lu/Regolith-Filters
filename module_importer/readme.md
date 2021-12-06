@@ -1,4 +1,4 @@
-A regolith filter for transpiling Typescript files
+A regolith filter for 
 
 ## Settings
 

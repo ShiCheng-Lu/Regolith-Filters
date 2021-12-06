@@ -1,9 +1,0 @@
-{
-  "filters": [
-    {
-      "runWith": "nodejs",
-      "script": "./index.js",
-      "name": "majestik:js_formatter"
-    }
-  ]
-}
