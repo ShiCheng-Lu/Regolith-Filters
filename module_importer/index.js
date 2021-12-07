@@ -8,7 +8,7 @@ const defSettings = {
         "@types",
         ""
     ],
-    silent: false,
+    silent: true,
 }
 const settings = Object.assign(
     defSettings,
@@ -62,5 +62,5 @@ function reImportFile(err, files_names) {
     }
 }
 
-glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/.modules/**/*", "BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
+glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
 
