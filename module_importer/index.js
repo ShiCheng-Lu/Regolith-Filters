@@ -4,7 +4,7 @@ const fse = require("fs-extra");
 
 const defSettings = {
     package_path: ".",
-    exclude_modules: [
+    exclude_modules: [ // seems to be never used
         "@types",
         ""
     ],
@@ -25,11 +25,16 @@ for (const module in package.dependencies) {
 
     try {
         const config = JSON.parse(fs.readFileSync(`${module_path}/minecraft-module.config.json`).toString());
+        // skip module if it doesn't match the extension
+        if (config.type !== type) continue;
+        // copy module files to target
         for (const key in config.exports) {
             fse.copySync(`${module_path}/${key}`, config.exports[key]);
         }
         included_modules.push(module);
-        console.log(`resolved module "${module}""`);
+        if (!settings.silent) {
+            console.log(`resolved ${type} module "${module}"`);
+        }
     } catch (err) {
         // minecraft-module.config.json not found
         if (!settings.silent) {
@@ -38,11 +43,10 @@ for (const module in package.dependencies) {
     }
 }
 
-
 /**
  * replace all module imports with correct relative imports
- * @param Error err 
- * @param string[] files_names 
+ * @param {Error} err 
+ * @param {string[]} files_names 
  */
 function reImportFile(err, files_names) {
     const depth_offset = 3;
@@ -51,11 +55,11 @@ function reImportFile(err, files_names) {
         const depth = file_name.split("/").length - depth_offset;
         const changed_file = file.toString().replace(
             new RegExp(`(import|export) (.*) from \"(${included_modules.join("|")})\"`, "g"),
-            `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}modules/$3/index.js"`
+            `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}.modules/$3/index.js"`
         )
         fs.writeFileSync(file_name, changed_file);
     }
 }
 
-glob("BP/scripts/**/*.js", { ignore: ["BP/scripts/modules/**/*", "BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
+glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/modules/**/*", "BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
 
