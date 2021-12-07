@@ -8,7 +8,7 @@ const defSettings = {
         "@types",
         ""
     ],
-    silent: true,
+    silent: false,
 }
 const settings = Object.assign(
     defSettings,
@@ -23,23 +23,24 @@ for (const module in package.dependencies) {
     // cp node_modules/[module_name]/[exports] -> [target]/[exports]
     const module_path = `../../${settings.package_path}/node_modules/${module}`
 
+    let config;
     try {
-        const config = JSON.parse(fs.readFileSync(`${module_path}/minecraft-module.config.json`).toString());
-        // skip module if it doesn't match the extension
-        if (config.type !== type) continue;
-        // copy module files to target
-        for (const key in config.exports) {
-            fse.copySync(`${module_path}/${key}`, config.exports[key]);
-        }
-        included_modules.push(module);
-        if (!settings.silent) {
-            console.log(`resolved ${type} module "${module}"`);
-        }
+        config = JSON.parse(fs.readFileSync(`${module_path}/minecraft-module.config.json`).toString());
     } catch (err) {
         // minecraft-module.config.json not found
         if (!settings.silent) {
             console.warn(`unable to resolve module "${module}", ${module}/minecraft-module.config.json not found`);
+            continue;
         }
+    }
+    // copy module files to target
+    for (const key in config.exports) {
+        console.log(key);
+        fse.copySync(`${module_path}/${key}`, config.exports[key]);
+    }
+    included_modules.push(module);
+    if (!settings.silent) {
+        console.log(`resolved module "${module}"`);
     }
 }
 
@@ -55,11 +56,11 @@ function reImportFile(err, files_names) {
         const depth = file_name.split("/").length - depth_offset;
         const changed_file = file.toString().replace(
             new RegExp(`(import|export) (.*) from \"(${included_modules.join("|")})\"`, "g"),
-            `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}.modules/$3/index.js"`
+            `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}modules/$3/index.js"`
         )
         fs.writeFileSync(file_name, changed_file);
     }
 }
 
-glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/modules/**/*", "BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
+glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/.modules/**/*", "BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
 
