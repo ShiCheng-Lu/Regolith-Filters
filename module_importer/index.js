@@ -33,8 +33,8 @@ for (const module in package.dependencies) {
         // minecraft-module.config.json not found
         if (!settings.silent) {
             console.warn(`unable to resolve module "${module}", ${module}/minecraft-module.config.json not found`);
-            continue;
         }
+        continue;
     }
 
     // copy module files to target
