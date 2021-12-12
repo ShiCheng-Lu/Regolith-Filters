@@ -26,21 +26,22 @@ for (const module in package.dependencies) {
     let config;
     try {
         config = JSON.parse(fs.readFileSync(`${module_path}/minecraft-module.config.json`).toString());
+
+        // copy module files to target
+        for (const key in config.exports) {
+            console.log(key);
+            fse.copySync(`${module_path}/${key}`, config.exports[key]);
+        }
+        included_modules.push(module);
+        if (!settings.silent) {
+            console.log(`resolved module "${module}"`);
+        }
     } catch (err) {
         // minecraft-module.config.json not found
         if (!settings.silent) {
             console.warn(`unable to resolve module "${module}", ${module}/minecraft-module.config.json not found`);
             continue;
         }
-    }
-    // copy module files to target
-    for (const key in config.exports) {
-        console.log(key);
-        fse.copySync(`${module_path}/${key}`, config.exports[key]);
-    }
-    included_modules.push(module);
-    if (!settings.silent) {
-        console.log(`resolved module "${module}"`);
     }
 }
 
