@@ -17,7 +17,7 @@ const settings = Object.assign(
 
 const included_modules = []
 
-const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package.json`).toString());
+const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package-lock.json`).toString());
 // add dependencies to output dir
 for (const module in package.dependencies) {
     if (defSettings.exclude_modules.includes(module)) {
@@ -39,7 +39,6 @@ for (const module in package.dependencies) {
 
     // copy module files to target
     for (const key in config.exports) {
-        console.log(key);
         fse.copySync(`${module_path}/${key}`, config.exports[key]);
     }
     included_modules.push(module);
