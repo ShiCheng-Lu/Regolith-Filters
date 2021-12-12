@@ -4,9 +4,9 @@ const fse = require("fs-extra");
 
 const defSettings = {
     package_path: ".",
-    exclude_modules: [ // seems to be never used
-        "@types",
-        ""
+    exclude_modules: [
+        "@types/mojang-minecraft",
+        "@types/mojang-gametest",
     ],
     silent: true,
 }
@@ -20,22 +20,15 @@ const included_modules = []
 const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package.json`).toString());
 // add dependencies to output dir
 for (const module in package.dependencies) {
+    if (defSettings.exclude_modules.includes(module)) {
+        continue;
+    }
     // cp node_modules/[module_name]/[exports] -> [target]/[exports]
     const module_path = `../../${settings.package_path}/node_modules/${module}`
 
     let config;
     try {
         config = JSON.parse(fs.readFileSync(`${module_path}/minecraft-module.config.json`).toString());
-
-        // copy module files to target
-        for (const key in config.exports) {
-            console.log(key);
-            fse.copySync(`${module_path}/${key}`, config.exports[key]);
-        }
-        included_modules.push(module);
-        if (!settings.silent) {
-            console.log(`resolved module "${module}"`);
-        }
     } catch (err) {
         // minecraft-module.config.json not found
         if (!settings.silent) {
@@ -43,7 +36,19 @@ for (const module in package.dependencies) {
             continue;
         }
     }
+
+    // copy module files to target
+    for (const key in config.exports) {
+        console.log(key);
+        fse.copySync(`${module_path}/${key}`, config.exports[key]);
+    }
+    included_modules.push(module);
+
+    if (!settings.silent) {
+        console.log(`resolved module "${module}"`);
+    }
 }
+console.log(included_modules.join("|"));
 
 /**
  * replace all module imports with correct relative imports
@@ -56,7 +61,7 @@ function reImportFile(err, files_names) {
         const file = fs.readFileSync(file_name);
         const depth = file_name.split("/").length - depth_offset;
         const changed_file = file.toString().replace(
-            new RegExp(`(import|export) (.*) from \"(${included_modules.join("|")})\"`, "g"),
+            new RegExp(`(import|export) (.*) from ["'\`](${included_modules.join("|")})["'\`]`, "g"),
             `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}modules/$3/index.js"`
         )
         fs.writeFileSync(file_name, changed_file);
@@ -64,4 +69,3 @@ function reImportFile(err, files_names) {
 }
 
 glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
-
