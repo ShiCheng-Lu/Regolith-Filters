@@ -6,4 +6,4 @@ A bunch of custom filters for the [Regolith](https://bedrock-oss.github.io/regol
 | --------------------------------- | -------------------------------------------------- |
 | [module_importer](module_importer)| A regolith filter for compiling modules            |
 
-# stolen formmatting from [MajestikButter](https://github.com/MajestikButter/Regolith-Filters)
+# stolen formatting from [MajestikButter](https://github.com/MajestikButter/Regolith-Filters)
