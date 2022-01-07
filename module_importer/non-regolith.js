@@ -17,7 +17,7 @@ const settings = Object.assign(
 
 const included_modules = []
 
-const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package-lock.json`).toString());
+const package = JSON.parse(fs.readFileSync(`${settings.package_path}/package-lock.json`).toString());
 // add dependencies to output dir
 for (const module in package.dependencies) {
     if (defSettings.exclude_modules.includes(module)) {
@@ -39,7 +39,9 @@ for (const module in package.dependencies) {
 
     // copy module files to target
     for (const key in config.exports) {
-        fse.copySync(`${module_path}/${key}`, config.exports[key]);
+        if (config.exports[key].startsWith("BP/")) {
+            fse.copySync(`${module_path}/${key}`, config.exports[key].slice(3));
+        }
     }
     included_modules.push(module);
 
@@ -60,7 +62,7 @@ function reImportFile(err, files_names) {
         const file = fs.readFileSync(file_name);
         const depth = file_name.split("/").length - depth_offset;
         const changed_file = file.toString().replace(
-            new RegExp(`(import|export) ((?:.|\n|\r)*?) from ["'\`](${included_modules.join("|")})["'\`]`, "g"),
+            new RegExp(`(import|export) ((?:.|\n)*?) from ["'\`](${included_modules.join("|")})["'\`]`, "g"),
             `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}modules/$3/index.js"`
         )
         fs.writeFileSync(file_name, changed_file);
