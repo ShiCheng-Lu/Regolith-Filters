@@ -62,7 +62,7 @@ function reImportFile(err, files_names) {
         const file = fs.readFileSync(file_name);
         const depth = file_name.split("/").length - depth_offset;
         const changed_file = file.toString().replace(
-            new RegExp(`(import|export) ((?:.|\n)*?) from ["'\`](${included_modules.join("|")})["'\`]`, "g"),
+            new RegExp(`(import|export) ((?:.|\n|\r)*?) from ["'\`](${included_modules.join("|")})["'\`]`, "g"),
             `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}modules/$3/index.js"`
         )
         fs.writeFileSync(file_name, changed_file);

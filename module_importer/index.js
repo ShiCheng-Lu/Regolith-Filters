@@ -9,6 +9,7 @@ const defSettings = {
         "@types/mojang-gametest",
     ],
     silent: true,
+    resolve_imports: true,
 }
 const settings = Object.assign(
     defSettings,
@@ -55,16 +56,18 @@ console.log(included_modules.join("|"));
  * @param {string[]} files_names 
  */
 function reImportFile(err, files_names) {
-    const depth_offset = 3;
+    const depth_offset = 2;
     for (const file_name of files_names) {
         const file = fs.readFileSync(file_name);
         const depth = file_name.split("/").length - depth_offset;
         const changed_file = file.toString().replace(
             new RegExp(`(import|export) ((?:.|\n|\r)*?) from ["'\`](${included_modules.join("|")})["'\`]`, "g"),
-            `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}modules/$3/index.js"`
+            `$1 $2 from "${depth === 0 ? "./" : "../".repeat(depth)}scripts/modules/$3/index.js"`
         )
         fs.writeFileSync(file_name, changed_file);
     }
 }
 
-glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
+if (settings.resolve_imports) {
+    glob("BP/scripts/**/*.ts", { ignore: ["BP/scripts/server/**/*", "BP/scripts/client/**/*"] }, reImportFile);
+}
