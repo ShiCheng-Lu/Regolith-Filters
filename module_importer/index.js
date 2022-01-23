@@ -17,8 +17,12 @@ const settings = Object.assign(
 );
 
 const included_modules = []
-
-const package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package-lock.json`).toString());
+let package;
+try {
+    package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package-lock.json`).toString());
+} catch (e) {
+    console.warn("can't find package-lock.json at project root!")
+}
 // add dependencies to output dir
 for (const module in package.dependencies) {
     if (defSettings.exclude_modules.includes(module)) {
