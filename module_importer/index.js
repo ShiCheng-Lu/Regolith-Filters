@@ -21,7 +21,8 @@ let package;
 try {
     package = JSON.parse(fs.readFileSync(`../../${settings.package_path}/package-lock.json`).toString());
 } catch (e) {
-    console.warn("can't find package-lock.json at project root!")
+    console.warn("can't find package-lock.json at project root!");
+    return;
 }
 // add dependencies to output dir
 for (const module in package.dependencies) {
