@@ -5,6 +5,5 @@
       "script": "./index.js",
       "name": "shich:module_importer"
     }
-  ],
-  "version": "1"
+  ]
 }
